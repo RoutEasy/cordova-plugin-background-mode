@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -203,10 +204,24 @@ public class ForegroundService extends Service {
                 .setOngoing(true)
                 .setSmallIcon(getIconResId(settings));
 
-        if(Build.VERSION.SDK_INT >= 26){
-                   notification.setChannelId(CHANNEL_ID);
-        }
-
+        //upgrade to sdk 26, fix problems with android 8.1
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            //Set the channel’s ID//
+            String CHANNEL_ONE_ID = "com.yourapp.ONE";
+            //Set the channel’s user-visible name//
+            String CHANNEL_ONE_NAME = "Channel One";
+            //This only needs to be run on Devices on Android O and above
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ONE_ID, CHANNEL_ONE_NAME, NotificationManager.IMPORTANCE_DEFAULT);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.MAGENTA);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(mChannel);
+            }
+            notification.setChannelId(CHANNEL_ONE_ID);
+        } 
+        
         if (settings.optBoolean("hidden", true)) {
             notification.setPriority(Notification.PRIORITY_MIN);
         }
